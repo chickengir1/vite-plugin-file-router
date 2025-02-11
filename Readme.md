@@ -1,7 +1,3 @@
-아래는 플러그인 사용 예시를 포함한 README 문서 예시입니다.
-
----
-
 # vite-plugin-file-router
 
 **vite-plugin-file-router**는 Vite와 React 프로젝트에서 Next.js와 같은 파일 기반 라우팅을 손쉽게 구현할 수 있도록 도와주는 플러그인입니다.  
