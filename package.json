@@ -1,6 +1,14 @@
 {
     "name": "vite-plugin-file-router",
-    "version": "1.0.3",
+    "version": "1.0.0",
+    "description": "file-router plugin for vite",
+    "keywords": ["vite-plugin", "react", "router", "file-system-routing"],
+    "author": "Gangho Lee",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/chickengir1/vite-plugin-file-router"
+    },
     "main": "dist/vite-plugin-file-router.js",
     "types": "dist/index.d.ts",
     "scripts": {
