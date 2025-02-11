@@ -6,7 +6,8 @@
         "vite-plugin",
         "react",
         "router",
-        "file-system-routing"
+        "file-system-routing",
+        "pages-router"
     ],
     "author": "Gangho Lee",
     "license": "MIT",
@@ -35,6 +36,7 @@
     "scripts": {
         "dev": "vite",
         "prepare": "npm run build",
+        "test": "vitest",
         "build": "tsc --declaration --emitDeclarationOnly && tsc && node scripts/rename-js-to-mjs.js"
     },
     "peerDependencies": {
