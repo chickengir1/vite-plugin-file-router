@@ -1,6 +1,5 @@
 import type { Plugin } from "vite";
 import fg from "fast-glob";
-import React from "react";
 import { createRoutes } from "./createRoutes";
 import type { FileRouterOptions, RouteNode } from "./types";
 
