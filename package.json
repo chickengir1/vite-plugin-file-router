@@ -13,10 +13,10 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/chickengir1/vite-plugin-file-router"
+        "url": "https://github.com/chickengir1/vite-plugin-pages-router"
     },
     "type": "module",
-    "main": "dist/vite-plugin-file-router.mjs",
+    "main": "dist/vite-plugin-pages-router.mjs",
     "types": "./dist/index.d.ts",
     "exports": {
         ".": {
@@ -25,9 +25,9 @@
             "types": "./dist/RouterConfig.d.ts"
         },
         "./plugin": {
-            "import": "./dist/vite-plugin-file-router.mjs",
-            "require": "./dist/vite-plugin-file-router.mjs",
-            "types": "./dist/vite-plugin-file-router.d.ts"
+            "import": "./dist/vite-plugin-pages-router.mjs",
+            "require": "./dist/vite-plugin-pages-router.mjs",
+            "types": "./dist/vite-plugin-pages-router.d.ts"
         }
     },
     "files": [
