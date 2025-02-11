@@ -1,6 +1,6 @@
 {
     "name": "vite-plugin-pages-router",
-    "version": "1.0.17",
+    "version": "1.0.18",
     "description": "file-router plugin for vite",
     "keywords": [
         "vite-plugin",
@@ -17,19 +17,21 @@
     "type": "module",
     "main": "dist/vite-plugin-file-router.mjs",
     "types": "./dist/index.d.ts",
-   "exports": {
-  ".": {
-    "import": "./dist/RouterConfig.mjs",
-    "require": "./dist/RouterConfig.mjs",
-    "types": "./dist/RouterConfig.d.ts"
-  },
-  "./plugin": {
-    "import": "./dist/vite-plugin-file-router.mjs",
-    "require": "./dist/vite-plugin-file-router.mjs",
-    "types": "./dist/vite-plugin-file-router.d.ts"
-  }
+    "exports": {
+        ".": {
+            "import": "./dist/RouterConfig.mjs",
+            "require": "./dist/RouterConfig.mjs",
+            "types": "./dist/RouterConfig.d.ts"
+        },
+        "./plugin": {
+            "import": "./dist/vite-plugin-file-router.mjs",
+            "require": "./dist/vite-plugin-file-router.mjs",
+            "types": "./dist/vite-plugin-file-router.d.ts"
+        }
     },
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "dev": "vite",
         "prepare": "npm run build",
