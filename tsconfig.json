@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["ESNext", "DOM"],
-    "jsx": "react-jsx",
-    "declaration": true,
-    "outDir": "dist",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
-  },
-  "include": ["src"]
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
 }

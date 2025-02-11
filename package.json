@@ -1,21 +1,12 @@
 {
     "name": "vite-plugin-file-router",
     "version": "1.0.2",
-    "main": "dist/index.js",
+    "main": "src/vite-plugin-file-router.ts",
     "types": "dist/index.d.ts",
-    "files": [
-        "dist",
-        "src",
-        "scripts",
-        "global.d.ts"
-    ],
+   
     "scripts": {
         "build": "tsc",
-        "test": "vitest",
-        "postinstall": "node ./scripts/postinstall.js"
-    },
-    "dependencies": {
-        "fast-glob": "^3.2.12"
+        "test": "vitest"
     },
     "peerDependencies": {
         "react": ">=18.0.0",
