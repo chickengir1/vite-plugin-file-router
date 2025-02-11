@@ -1,4 +1,5 @@
 import { Plugin } from "vite";
+import { transform } from "esbuild";
 import { FileRouterPluginOptions } from "./types";
 
 const defaultOptions: FileRouterPluginOptions = {
@@ -23,9 +24,14 @@ export default function fileRouterPlugin(
       }
     },
 
-    load(id: string) {
+    async load(id: string) {
       if (id === "\0vite-plugin-pages-router.tsx") {
-        return generateRouterConfig(finalOptions).trim();
+        const code = generateRouterConfig(finalOptions).trim();
+        const result = await transform(code, {
+          loader: "tsx",
+          target: "esnext",
+        });
+        return result.code;
       }
     },
   };
