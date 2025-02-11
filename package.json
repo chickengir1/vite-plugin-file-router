@@ -1,6 +1,6 @@
 {
     "name": "vite-plugin-file-router",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "file-router plugin for vite",
     "keywords": [
         "vite-plugin",
@@ -17,9 +17,16 @@
     "main": "dist/vite-plugin-file-router.mjs",
     "types": "./dist/index.d.ts",
     "type": "module",
+    "exports": {
+        ".": {
+            "import": "./dist/vite-plugin-file-router.mjs",
+            "require": "./dist/vite-plugin-file-router.mjs",
+            "types": "./dist/index.d.ts"
+        }
+    },
     "scripts": {
         "dev": "vite",
-        "build": "tsc --declaration --emitDeclarationOnly && tsc"
+        "build": "tsc --declaration --emitDeclarationOnly && tsc && node scripts/rename-js-to-mjs.js"
     },
     "peerDependencies": {
         "react": ">=18.0.0",
