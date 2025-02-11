@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import type { FileRouterPluginOptions } from "./types";
+import type { FileRouterPluginOptions, Server } from "./types";
 
 const defaultOptions: FileRouterPluginOptions = {
   pagesDir: "src/pages",
@@ -11,22 +11,28 @@ export default function fileRouterPlugin(options?: FileRouterPluginOptions) {
 
   return {
     name: "vite-plugin-file-router",
+    configureServer(server: Server) {
+      const watcher = server.watcher;
+      const pagesDir = path.resolve(process.cwd(), finalOptions.pagesDir);
+
+      watcher.add(pagesDir);
+      watcher.on("add", (file: string) => {
+        if (file.endsWith(".tsx") && file.includes(pagesDir)) {
+          updateRoutes(pagesDir, finalOptions);
+        }
+      });
+      watcher.on("unlink", (file: string) => {
+        if (file.endsWith(".tsx") && file.includes(pagesDir)) {
+          updateRoutes(pagesDir, finalOptions);
+        }
+      });
+    },
     buildStart() {
       const pagesDir = path.resolve(process.cwd(), finalOptions.pagesDir);
       if (!fs.existsSync(pagesDir)) {
         fs.mkdirSync(pagesDir, { recursive: true });
       }
-      const routes = generateRoutes(pagesDir);
-
-      fs.writeFileSync(
-        path.resolve(process.cwd(), "src/routes.ts"),
-        generateRoutesFileContent(routes, finalOptions)
-      );
-
-      fs.writeFileSync(
-        path.resolve(process.cwd(), "src/RouterConfig.tsx"),
-        generateRouterConfigFileContent(finalOptions)
-      );
+      updateRoutes(pagesDir, finalOptions);
     },
   };
 }
@@ -34,14 +40,25 @@ export default function fileRouterPlugin(options?: FileRouterPluginOptions) {
 function generateRoutes(
   pagesDir: string
 ): { path: string; component: string }[] {
-  const files = fs.readdirSync(pagesDir);
+  const getAllFiles = (dir: string): string[] => {
+    const files = fs.readdirSync(dir);
+    return files.reduce<string[]>((acc, file) => {
+      const filePath = path.join(dir, file);
+      if (fs.statSync(filePath).isDirectory()) {
+        return [...acc, ...getAllFiles(filePath)];
+      }
+      return [...acc, filePath];
+    }, []);
+  };
+
+  const files = getAllFiles(pagesDir);
   return files
     .filter((file) => file.endsWith(".tsx"))
     .map((file) => {
-      const filePath = path.resolve(pagesDir, file);
+      const relativePath = path.relative(pagesDir, file);
       return {
-        path: formatPath(file),
-        component: filePath,
+        path: formatPath(relativePath),
+        component: file,
       };
     });
 }
@@ -113,24 +130,38 @@ function generateRouterConfigFileContent(
 
   return `
 import { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import routes from './routes';
 ${notFoundImport}
 ${loadingImport}
 
 const RouterConfig = () => {
   return (
-    <Suspense fallback={${loadingElement}}>
-      <Routes>
-        {routes.map(({ path, component: Component }) => (
-          <Route key={path} path={path} element={<Component />} />
-        ))}
-        <Route path="*" element={${notFoundElement}} />
-      </Routes>
-    </Suspense>
+    <BrowserRouter>
+      <Suspense fallback={${loadingElement}}>
+        <Routes>
+          {routes.map(({ path, component: Component }) => (
+            <Route key={path} path={path} element={<Component />} />
+          ))}
+          <Route path="*" element={${notFoundElement}} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   );
 };
 
 export default RouterConfig;
 `;
+}
+
+function updateRoutes(pagesDir: string, options: FileRouterPluginOptions) {
+  const routes = generateRoutes(pagesDir);
+  fs.writeFileSync(
+    path.resolve(process.cwd(), "src/routes.ts"),
+    generateRoutesFileContent(routes, options)
+  );
+  fs.writeFileSync(
+    path.resolve(process.cwd(), "src/RouterConfig.tsx"),
+    generateRouterConfigFileContent(options)
+  );
 }
