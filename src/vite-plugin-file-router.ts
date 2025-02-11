@@ -25,7 +25,7 @@ export default function fileRouterPlugin(
 
     load(id: string) {
       if (id === "\0vite-plugin-pages-router.tsx") {
-        return generateRouterConfig(finalOptions);
+        return generateRouterConfig(finalOptions).trim();
       }
     },
   };
