@@ -80,7 +80,7 @@ function generateRouterConfigFileContent(
   return `
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
+// loading And NotFound Components Dynamically Imported
 ${notFoundImport}
 ${loadingImport}
 
