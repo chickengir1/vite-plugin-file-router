@@ -1,22 +1,13 @@
 {
     "name": "vite-plugin-file-router",
     "version": "1.0.0",
-    "description": "Vite plugin for generating file-based routes",
-    "author": "Gangho Lee",
-    "license": "MIT",
-    "keywords": [
-        "vite",
-        "plugin",
-        "file-based",
-        "routes",
-        "react-router"
-    ],
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
         "dist",
         "src",
-        "scripts"
+        "scripts",
+        "global.d.ts"
     ],
     "scripts": {
         "build": "tsc",
@@ -33,7 +24,6 @@
     },
     "devDependencies": {
         "@types/react": "^19.0.8",
-        "@types/react-dom": "^19.0.3",
         "typescript": "^4.8.0",
         "vitest": "^0.34.0"
     }
