@@ -6,7 +6,7 @@ export interface FileRouterPluginOptions {
 
 export interface Server {
   watcher: {
-    add: (file: string) => void;
-    on: (event: string, callback: (file: string) => void) => void;
+    add: (fileOrDir: string) => void;
+    on: (event: "add" | "unlink", callback: (filePath: string) => void) => void;
   };
 }
