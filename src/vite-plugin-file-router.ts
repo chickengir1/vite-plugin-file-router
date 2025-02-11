@@ -13,6 +13,9 @@ export default function fileRouterPlugin(options?: FileRouterPluginOptions) {
     name: "vite-plugin-file-router",
     buildStart() {
       const pagesDir = path.resolve(process.cwd(), finalOptions.pagesDir);
+      if (!fs.existsSync(pagesDir)) {
+        fs.mkdirSync(pagesDir, { recursive: true });
+      }
       const routes = generateRoutes(pagesDir);
 
       fs.writeFileSync(
@@ -55,16 +58,30 @@ function generateRoutesFileContent(
   routes: { path: string; component: string }[],
   options: FileRouterPluginOptions
 ): string {
+  const getComponentName = (filePath: string) => {
+    return `Page${filePath
+      .replace(/[\/\\]/g, "_")
+      .replace(/[\[\]]/g, "")
+      .replace(/\./g, "_")
+      .replace(/[^a-zA-Z0-9_]/g, "")
+      .replace(/^_+|_+$/g, "")}`;
+  };
+
   const routesImport = routes
     .map(
       (route) =>
-        `const ${route.component} = lazy(() => import('./pages${route.path}.tsx'));`
+        `const ${getComponentName(route.path)} = lazy(() => import('./pages${
+          route.path
+        }.tsx'));`
     )
     .join("\n");
 
   const routesDefinition = routes
     .map(
-      (route) => `  { path: '${route.path}', component: ${route.component} }`
+      (route) =>
+        `  { path: '${route.path}', component: ${getComponentName(
+          route.path
+        )} }`
     )
     .join(",\n");
 
@@ -95,7 +112,7 @@ function generateRouterConfigFileContent(
   const loadingElement = options.loadingComponent ? "<Loading />" : "<></>";
 
   return `
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import routes from './routes';
 ${notFoundImport}
