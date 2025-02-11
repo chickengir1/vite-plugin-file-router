@@ -37,16 +37,24 @@ export default function fileRouterPlugin(
   };
 }
 
+function normalizePath(pathStr: string): string {
+  return pathStr.startsWith("/") ? pathStr : "/" + pathStr;
+}
+
 function generateRouterConfig(options: FileRouterPluginOptions): string {
   const pagesDir = options.pagesDir || "src/pages";
   const pagesDirPath = `/${pagesDir}`;
   const globPath = `${pagesDirPath}/**/*.tsx`;
 
   const notFoundImport = options.notFoundPage
-    ? `import NotFound from '${removeExtension(options.notFoundPage)}';`
+    ? `import NotFound from '${normalizePath(
+        removeExtension(options.notFoundPage)
+      )}';`
     : "";
   const loadingImport = options.loadingComponent
-    ? `import Loading from '${removeExtension(options.loadingComponent)}';`
+    ? `import Loading from '${normalizePath(
+        removeExtension(options.loadingComponent)
+      )}';`
     : "";
 
   const notFoundElement = options.notFoundPage
