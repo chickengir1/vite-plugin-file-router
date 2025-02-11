@@ -1,0 +1,29 @@
+{
+    "name": "vite-plugin-file-router",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+      "dist",
+      "src",
+      "scripts"
+    ],
+    "scripts": {
+      "build": "tsc",
+      "test": "vitest",
+      "postinstall": "node ./scripts/postinstall.js"
+    },
+    "dependencies": {
+      "fast-glob": "^3.2.12"
+    },
+    "peerDependencies": {
+      "vite": ">=4.0.0",
+      "react": ">=18.0.0",
+      "react-router-dom": ">=6.0.0"
+    },
+    "devDependencies": {
+      "typescript": "^4.8.0",
+      "vitest": "^0.34.0"
+    }
+  }
+  
