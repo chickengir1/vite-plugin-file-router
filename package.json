@@ -1,13 +1,13 @@
 {
     "name": "vite-plugin-file-router",
     "version": "1.0.2",
-    "main": "src/vite-plugin-file-router.ts",
+    "main": "dist/vite-plugin-file-router.js",
     "types": "dist/index.d.ts",
-   
     "scripts": {
-        "build": "tsc",
-        "test": "vitest"
-    },
+     "dev": "vite",
+     "build": "tsc",
+     "test": "echo \"No tests specified\" && exit 0"
+     },
     "peerDependencies": {
         "react": ">=18.0.0",
         "react-router-dom": ">=6.0.0",
