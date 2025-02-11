@@ -1,5 +1,4 @@
 import { Plugin } from "vite";
-import path from "path";
 import { FileRouterPluginOptions } from "./types";
 
 const defaultOptions: FileRouterPluginOptions = {
@@ -20,12 +19,12 @@ export default function fileRouterPlugin(
 
     resolveId(id: string) {
       if (id === "vite-plugin-pages-router") {
-        return "\0vite-plugin-pages-router";
+        return "\0vite-plugin-pages-router.tsx";
       }
     },
 
     load(id: string) {
-      if (id === "\0vite-plugin-pages-router") {
+      if (id === "\0vite-plugin-pages-router.tsx") {
         return generateRouterConfig(finalOptions);
       }
     },
@@ -54,7 +53,7 @@ function generateRouterConfig(options: FileRouterPluginOptions): string {
   return `
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-// 동적으로 임포트되는 Loading 및 NotFound 컴포넌트
+// dynamic import loading and not found component
 ${notFoundImport}
 ${loadingImport}
 
