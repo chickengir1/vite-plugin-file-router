@@ -17,17 +17,17 @@ export default function fileRouterPlugin(
   const finalOptions = { ...defaultOptions, ...options };
 
   return {
-    name: "vite-plugin-file-router",
+    name: "vite-plugin-pages-router",
     enforce: "pre",
 
     resolveId(id: string) {
-      if (id === "vite-plugin-file-router") {
-        return "\0vite-plugin-file-router";
+      if (id === "vite-plugin-pages-router") {
+        return "\0vite-plugin-pages-router";
       }
     },
 
     load(id: string) {
-      if (id === "\0vite-plugin-file-router") {
+      if (id === "\0vite-plugin-pages-router") {
         return generateRouterConfig(finalOptions);
       }
     },
@@ -81,7 +81,7 @@ const routes = Object.entries(pages).map(([filePath, resolver]) => {
   };
 });
 
-export default function RouterConfig() {
+const RouterConfig = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={${loadingElement}}>
@@ -98,7 +98,9 @@ export default function RouterConfig() {
       </Suspense>
     </BrowserRouter>
   );
-}
+};
+
+export default RouterConfig;
 `;
 }
 
