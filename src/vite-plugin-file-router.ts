@@ -51,6 +51,8 @@ function generateRouterConfig(options: FileRouterPluginOptions): string {
     : "<div>Loading...</div>";
 
   return `
+/** @jsxRuntime classic */
+/** @jsx React.createElement */
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // dynamic import loading and not found component
