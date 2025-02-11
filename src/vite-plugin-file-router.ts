@@ -11,157 +11,126 @@ export default function fileRouterPlugin(options?: FileRouterPluginOptions) {
 
   return {
     name: "vite-plugin-file-router",
+
     configureServer(server: Server) {
-      const watcher = server.watcher;
-      const pagesDir = path.resolve(process.cwd(), finalOptions.pagesDir);
+      const { watcher } = server;
+      const pagesDir: string = path.resolve(
+        process.cwd(),
+        finalOptions.pagesDir
+      );
 
       watcher.add(pagesDir);
-      watcher.on("add", (file: string) => {
-        if (file.endsWith(".tsx") && file.includes(pagesDir)) {
-          updateRoutes(pagesDir, finalOptions);
+
+      watcher.on("add", (filePath: string) => {
+        if (filePath.endsWith(".tsx") && filePath.includes(pagesDir)) {
+          updateRouterFile(finalOptions);
         }
       });
-      watcher.on("unlink", (file: string) => {
-        if (file.endsWith(".tsx") && file.includes(pagesDir)) {
-          updateRoutes(pagesDir, finalOptions);
+
+      watcher.on("unlink", (filePath: string) => {
+        if (filePath.endsWith(".tsx") && filePath.includes(pagesDir)) {
+          updateRouterFile(finalOptions);
         }
       });
     },
+
     buildStart() {
-      const pagesDir = path.resolve(process.cwd(), finalOptions.pagesDir);
-      if (!fs.existsSync(pagesDir)) {
-        fs.mkdirSync(pagesDir, { recursive: true });
-      }
-      updateRoutes(pagesDir, finalOptions);
+      updateRouterFile(finalOptions);
     },
   };
 }
 
-function generateRoutes(
-  pagesDir: string
-): { path: string; component: string }[] {
-  const getAllFiles = (dir: string): string[] => {
-    const files = fs.readdirSync(dir);
-    return files.reduce<string[]>((acc, file) => {
-      const filePath = path.join(dir, file);
-      if (fs.statSync(filePath).isDirectory()) {
-        return [...acc, ...getAllFiles(filePath)];
-      }
-      return [...acc, filePath];
-    }, []);
-  };
+function updateRouterFile(options: FileRouterPluginOptions): void {
+  const pagesRelativeDir = path.relative(
+    path.resolve(process.cwd(), "src"),
+    path.resolve(process.cwd(), options.pagesDir)
+  );
 
-  const files = getAllFiles(pagesDir);
-  return files
-    .filter((file) => file.endsWith(".tsx"))
-    .map((file) => {
-      const relativePath = path.relative(pagesDir, file);
-      return {
-        path: formatPath(relativePath),
-        component: file,
-      };
-    });
-}
+  const fileContent = generateRouterConfigFileContent(
+    pagesRelativeDir.replace(/\\/g, "/"),
+    options
+  );
 
-function formatPath(fileName: string): string {
-  return fileName
-    .replace(/\/index\.tsx$/, "/")
-    .replace(/\.tsx$/, "")
-    .replace(/\[(.+?)\]/g, ":$1")
-    .toLowerCase();
-}
-
-function generateRoutesFileContent(
-  routes: { path: string; component: string }[],
-  options: FileRouterPluginOptions
-): string {
-  const getComponentName = (filePath: string) => {
-    return `Page${filePath
-      .replace(/[\/\\]/g, "_")
-      .replace(/[\[\]]/g, "")
-      .replace(/\./g, "_")
-      .replace(/[^a-zA-Z0-9_]/g, "")
-      .replace(/^_+|_+$/g, "")}`;
-  };
-
-  const routesImport = routes
-    .map(
-      (route) =>
-        `const ${getComponentName(route.path)} = lazy(() => import('./pages${
-          route.path
-        }.tsx'));`
-    )
-    .join("\n");
-
-  const routesDefinition = routes
-    .map(
-      (route) =>
-        `  { path: '${route.path}', component: ${getComponentName(
-          route.path
-        )} }`
-    )
-    .join(",\n");
-
-  return `
-import { lazy } from 'react';
-
-${routesImport}
-
-const routes = [
-${routesDefinition}
-];
-
-export default routes;
-  `;
+  const routerConfigPath = path.resolve(process.cwd(), "src/RouterConfig.tsx");
+  fs.writeFileSync(routerConfigPath, fileContent, { encoding: "utf-8" });
 }
 
 function generateRouterConfigFileContent(
+  pagesRelativeDir: string,
   options: FileRouterPluginOptions
 ): string {
-  const notFoundImport = options.notFoundPage
-    ? `import NotFound from '${options.notFoundPage}';`
-    : "";
-  const loadingImport = options.loadingComponent
-    ? `import Loading from '${options.loadingComponent}';`
+  const notFoundImport: string = options.notFoundPage
+    ? `import NotFound from '${makeImportPath(options.notFoundPage)}';`
     : "";
 
-  const notFoundElement = options.notFoundPage ? "<NotFound />" : "<></>";
-  const loadingElement = options.loadingComponent ? "<Loading />" : "<></>";
+  const loadingImport: string = options.loadingComponent
+    ? `import Loading from '${makeImportPath(options.loadingComponent)}';`
+    : "";
+
+  const notFoundElement: string = options.notFoundPage
+    ? "<NotFound />"
+    : "<></>";
+
+  const loadingElement: string = options.loadingComponent
+    ? "<Loading />"
+    : "<></>";
+
+  const globPath: string = `./${pagesRelativeDir}/**/*.tsx`;
 
   return `
-import { Suspense } from 'react';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import routes from './routes';
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 ${notFoundImport}
 ${loadingImport}
 
-const RouterConfig = () => {
+const pages = import.meta.glob('${globPath}');
+
+function formatPath(filePath: string): string {
+  return filePath
+    .replace('${globPath.replace("/**/*.tsx", "")}', '')
+    .replace(/\\/index\\.tsx$/, '/')
+    .replace(/\\.tsx$/, '')
+    .replace(/\\[(.+?)\\]/g, ':$1')
+    .toLowerCase()
+    .replace(/\\/+$/, '')
+    || '/';
+}
+
+const routes = Object.entries(pages).map(([filePath, resolver]) => {
+  const Component = lazy(resolver as () => Promise<{ default: React.ComponentType<unknown> }>);
+  return {
+    path: formatPath(filePath),
+    component: Component
+  };
+});
+
+export default function RouterConfig() {
   return (
     <BrowserRouter>
       <Suspense fallback={${loadingElement}}>
         <Routes>
           {routes.map(({ path, component: Component }) => (
-            <Route key={path} path={path} element={<Component />} />
+            <Route 
+              key={path} 
+              path={path} 
+              element={<Component />} 
+            />
           ))}
           <Route path="*" element={${notFoundElement}} />
         </Routes>
       </Suspense>
     </BrowserRouter>
   );
-};
-
-export default RouterConfig;
+}
 `;
 }
 
-function updateRoutes(pagesDir: string, options: FileRouterPluginOptions) {
-  const routes = generateRoutes(pagesDir);
-  fs.writeFileSync(
-    path.resolve(process.cwd(), "src/routes.ts"),
-    generateRoutesFileContent(routes, options)
+function makeImportPath(userPath: string): string {
+  const relativePath: string = path.relative(
+    path.resolve(process.cwd(), "src"),
+    path.resolve(process.cwd(), userPath)
   );
-  fs.writeFileSync(
-    path.resolve(process.cwd(), "src/RouterConfig.tsx"),
-    generateRouterConfigFileContent(options)
-  );
+
+  return `./${relativePath.replace(/\\/g, "/")}`;
 }
