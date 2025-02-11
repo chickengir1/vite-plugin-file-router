@@ -69,11 +69,11 @@ function generateRouterConfigFileContent(
 
   const notFoundElement: string = options.notFoundPage
     ? "<NotFound />"
-    : "<></>";
+    : "<div>404 Not Found</div>";
 
   const loadingElement: string = options.loadingComponent
     ? "<Loading />"
-    : "<></>";
+    : "<div>Loading...</div>";
 
   const globPath: string = `./${pagesRelativeDir}/**/*.tsx`;
 
