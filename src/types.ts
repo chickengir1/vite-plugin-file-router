@@ -3,10 +3,3 @@ export interface FileRouterPluginOptions {
   notFoundPage?: string;
   loadingComponent?: string;
 }
-
-export interface Server {
-  watcher: {
-    add: (fileOrDir: string) => void;
-    on: (event: "add" | "unlink", callback: (filePath: string) => void) => void;
-  };
-}

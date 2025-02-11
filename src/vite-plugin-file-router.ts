@@ -1,11 +1,6 @@
 import { Plugin } from "vite";
 import path from "path";
-
-interface FileRouterPluginOptions {
-  pagesDir?: string;
-  notFoundPage?: string;
-  loadingComponent?: string;
-}
+import { FileRouterPluginOptions } from "./types";
 
 const defaultOptions: FileRouterPluginOptions = {
   pagesDir: "src/pages",
@@ -14,7 +9,10 @@ const defaultOptions: FileRouterPluginOptions = {
 export default function fileRouterPlugin(
   options?: FileRouterPluginOptions
 ): Plugin {
-  const finalOptions = { ...defaultOptions, ...options };
+  const finalOptions: FileRouterPluginOptions = {
+    ...defaultOptions,
+    ...options,
+  };
 
   return {
     name: "vite-plugin-pages-router",
@@ -36,12 +34,12 @@ export default function fileRouterPlugin(
 
 function generateRouterConfig(options: FileRouterPluginOptions): string {
   const pagesDir = options.pagesDir || "src/pages";
-  const globPath = `./${pagesDir}/**/*.tsx`;
+  const pagesDirPath = `/${pagesDir}`;
+  const globPath = `${pagesDirPath}/**/*.tsx`;
 
   const notFoundImport = options.notFoundPage
     ? `import NotFound from '${removeExtension(options.notFoundPage)}';`
     : "";
-
   const loadingImport = options.loadingComponent
     ? `import Loading from '${removeExtension(options.loadingComponent)}';`
     : "";
@@ -56,21 +54,21 @@ function generateRouterConfig(options: FileRouterPluginOptions): string {
   return `
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-// Loading and NotFound Components Dynamically Imported
+// 동적으로 임포트되는 Loading 및 NotFound 컴포넌트
 ${notFoundImport}
 ${loadingImport}
 
 const pages = import.meta.glob('${globPath}');
 
 function formatPath(filePath: string): string {
+  const basePath = '${pagesDirPath}';
   return filePath
-    .replace('${globPath.replace("/**/*.tsx", "")}', '')
+    .replace(new RegExp('^' + basePath), '')
     .replace(/\\/index\\.tsx$/, '/')
     .replace(/\\.tsx$/, '')
     .replace(/\\[(.+?)\\]/g, ':$1')
     .toLowerCase()
-    .replace(/\\/+$/, '')
-    || '/';
+    .replace(/\\/+$/, '') || '/';
 }
 
 const routes = Object.entries(pages).map(([filePath, resolver]) => {
